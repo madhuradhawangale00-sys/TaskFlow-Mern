@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
+const generateToken = require("../utils/generateToken");
 const registerUser = async (req,res) => {
     try {
         const { name, email, password } = req.body;
@@ -52,17 +53,29 @@ const loginUser = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     console.log(isMatch);
+    if(!isMatch) {
+      return res.status(400).json({
+        success:false,
+        message: "Invalid email or password",
+      });
+    }
+    const token = generateToken(user._id);
 
-    return res.json({
-        success:true,
-        isMatch,
-    });
+    const userData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+
+    
     
 
    return res.status(200).json({
       success: true,
-      message: "User Found",
-      user,
+      message: "Login successfull",
+      token,
+      user : userData,
     });
     
 
