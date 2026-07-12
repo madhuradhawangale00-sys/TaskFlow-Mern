@@ -6,7 +6,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
-
+const protect = require("./middleware/authMiddleware");
 
 const app = express();
 
@@ -19,6 +19,12 @@ app.use("/api/auth", authRoutes);
 
 app.get("/", (req,res) => {
     res.send("TaskFlow Backend is running");
+});
+
+app.get("/profile", protect,(req,res) => {
+    res.json({
+        message: "Welcome to your profile"
+    });
 });
 
 const PORT = process.env.PORT || 5000;
