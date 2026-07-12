@@ -23,7 +23,8 @@ app.get("/", (req,res) => {
 
 app.get("/profile", protect,(req,res) => {
     res.json({
-        message: "Welcome to your profile"
+        success: true,
+        user: req.user
     });
 });
 
