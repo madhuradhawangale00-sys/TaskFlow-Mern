@@ -8,6 +8,8 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const protect = require("./middleware/authMiddleware");
 
+const workspaceRoutes = require("./routes/workspaceRoutes");
+
 const app = express();
 
 connectDB()
@@ -16,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/workspaces",workspaceRoutes);
 
 app.get("/", (req,res) => {
     res.send("TaskFlow Backend is running");
