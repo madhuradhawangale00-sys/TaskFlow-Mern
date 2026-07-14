@@ -23,4 +23,10 @@ const createWorkspace = async (req, res) => {
     }
 }
 
-module.exports = {createWorkspace};
+const getWorkspaces = async (req,res) => {
+    res.json({
+        message: "Get Workspaces Controller working"
+    });
+}
+
+module.exports = {createWorkspace,getWorkspaces};
