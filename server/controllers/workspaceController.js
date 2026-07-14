@@ -23,10 +23,26 @@ const createWorkspace = async (req, res) => {
     }
 }
 
-const getWorkspaces = async (req,res) => {
-    res.json({
-        message: "Get Workspaces Controller working"
+const getWorkspaces = async (req, res) => {
+  try {
+
+    const workspaces = await Workspace.find({
+      members: req.user._id,
+    }).populate("owner","name email").sort({createdAt: -1});
+
+    res.status(200).json({
+      success: true,
+      workspaces,
     });
-}
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+};
 
 module.exports = {createWorkspace,getWorkspaces};
