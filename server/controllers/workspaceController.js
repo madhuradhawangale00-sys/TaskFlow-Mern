@@ -1,4 +1,5 @@
 const Workspace = require("../models/Workspace");
+const User = require("../models/User");
 const createWorkspace = async (req, res) => {
     try{
         const { name, description} = req.body;
@@ -84,4 +85,67 @@ const updateWorkspace = async (req, res) => {
   }
 };
 
-module.exports = {createWorkspace,getWorkspaces,updateWorkspace};
+const addMember = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email } = req.body;
+
+    // Find the workspace
+    const workspace = await Workspace.findById(id);
+
+    if (!workspace) {
+      return res.status(404).json({
+        success: false,
+        message: "Workspace not found",
+      });
+    }
+
+    // Only the workspace owner can add members
+    if (workspace.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Only the workspace owner can add members",
+      });
+    }
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check if the user is already a member
+    const isMember = workspace.members.some(
+      (member) => member.toString() === user._id.toString()
+    );
+
+    if (isMember) {
+      return res.status(400).json({
+        success: false,
+        message: "User is already a member",
+      });
+    }
+
+    // Add the user to the members array
+    workspace.members.push(user._id);
+
+    // Save the workspace
+    await workspace.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Member added successfully",
+      workspace,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+module.exports = {createWorkspace,getWorkspaces,updateWorkspace,addMember};
