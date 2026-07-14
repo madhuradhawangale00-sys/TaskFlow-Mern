@@ -45,10 +45,43 @@ const getWorkspaces = async (req, res) => {
   }
 };
 
-const updateWorkspaces = async (req,res) => {
-    res.json({
-        message: "Update Workspace Controller working",
+const updateWorkspace = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description } = req.body;
+
+    const workspace = await Workspace.findById(id);
+
+    if (!workspace) {
+      return res.status(404).json({
+        success: false,
+        message: "Workspace not found",
+      });
+    }
+
+    if (workspace.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to update this workspace",
+      });
+    }
+
+    if (name) workspace.name = name;
+    if (description) workspace.description = description;
+
+    await workspace.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Workspace updated successfully",
+      workspace,
     });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
-module.exports = {createWorkspace,getWorkspaces,updateWorkspaces};
+module.exports = {createWorkspace,getWorkspaces,updateWorkspace};
