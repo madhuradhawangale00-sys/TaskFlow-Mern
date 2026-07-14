@@ -148,4 +148,40 @@ const addMember = async (req, res) => {
     });
   }
 };
-module.exports = {createWorkspace,getWorkspaces,updateWorkspace,addMember};
+
+const deleteWorkspace = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const workspace = await Workspace.findById(id);
+
+    if (!workspace) {
+      return res.status(404).json({
+        success: false,
+        message: "Workspace not found",
+      });
+    }
+
+    // Only the owner can delete
+    if (workspace.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Only the workspace owner can delete this workspace",
+      });
+    }
+
+    await Workspace.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Workspace deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {createWorkspace,getWorkspaces,updateWorkspace,addMember,deleteWorkspace};
